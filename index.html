@@ -53,6 +53,7 @@
                 radial-gradient(circle at 10% 20%, rgba(106, 17, 203, 0.15) 0%, transparent 20%),
                 radial-gradient(circle at 90% 80%, rgba(252, 74, 26, 0.15) 0%, transparent 20%);
             min-height: 100vh;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
         .container {
@@ -107,6 +108,127 @@
             border-radius: 3px;
         }
 
+        /* Theme Switcher */
+        .theme-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .theme-checkbox {
+            opacity: 0;
+            position: absolute;
+        }
+
+        .theme-label {
+            width: 50px;
+            height: 26px;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 50px;
+            padding: 5px;
+            position: relative;
+            cursor: pointer;
+            transform: scale(0.8);
+            transition: var(--transition);
+        }
+
+        .theme-ball {
+            width: 20px;
+            height: 20px;
+            background: white;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .theme-checkbox:checked + .theme-label .theme-ball {
+            transform: translateX(24px);
+        }
+
+        .theme-label i {
+            font-size: 14px;
+            color: white;
+        }
+
+        .fa-sun {
+            opacity: 0;
+            transform: translateY(20px) rotate(45deg);
+            transition: var(--transition);
+        }
+
+        .fa-moon {
+            opacity: 1;
+            transform: translateY(0) rotate(0);
+            transition: var(--transition);
+        }
+
+        .theme-checkbox:checked + .theme-label .fa-sun {
+            opacity: 1;
+            transform: translateY(0) rotate(0);
+        }
+
+        .theme-checkbox:checked + .theme-label .fa-moon {
+            opacity: 0;
+            transform: translateY(-20px) rotate(180deg);
+        }
+
+        /* Light Theme Variables */
+        body.light-theme {
+            --primary-color: #2575fc;
+            --primary-hover: #1a5dc8;
+            --secondary-color: #ff7e5f;
+            --secondary-hover: #e66a4d;
+            --accent-color: #ffb347;
+            --accent-hover: #e69d3e;
+            --dark-color: #f5f7fa;
+            --light-bg: #e8eef7;
+            --card-bg: #ffffff;
+            --text-color: #2d3748;
+            --text-secondary: #4a5568;
+            --border-color: #e2e8f0;
+            
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(37, 117, 252, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(255, 126, 95, 0.1) 0%, transparent 20%);
+        }
+
+        .light-theme .dorama-card {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .light-theme .dorama-card:hover {
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .light-theme header {
+            background: rgba(232, 238, 247, 0.7);
+        }
+
+        .light-theme h1 {
+            background: linear-gradient(45deg, #2575fc, #6a11cb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .light-theme .search-input {
+            background: rgba(255, 255, 255, 0.7);
+            color: var(--text-color);
+        }
+
+        .light-theme .search-input::placeholder {
+            color: rgba(74, 85, 104, 0.7);
+        }
+
+        .light-theme .filter-group {
+            background: rgba(255, 255, 255, 0.7);
+        }
+
         .search-container {
             margin-bottom: 30px;
             display: flex;
@@ -156,6 +278,8 @@
             justify-content: center;
             gap: 20px;
             margin-bottom: 30px;
+            position: relative;
+            z-index: 100;
         }
 
         .filter-group {
@@ -165,6 +289,7 @@
             box-shadow: var(--shadow);
             backdrop-filter: blur(5px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
         }
 
         .filter-title {
@@ -271,7 +396,7 @@
             max-height: 400px;
             overflow-y: auto;
             box-shadow: var(--shadow);
-            z-index: 100;
+            z-index: 1000;
             border-radius: 12px;
             padding: 15px;
             left: 50%;
@@ -341,6 +466,8 @@
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 30px;
             margin-top: 30px;
+            position: relative;
+            z-index: 1;
         }
 
         .dorama-card {
@@ -749,6 +876,15 @@
         <header>
             <h1><i class="fas fa-heart"></i> DoramaVerse <i class="fas fa-heart"></i></h1>
             <p style="color: var(--text-secondary); max-width: 700px; margin: 0 auto;">Полная коллекция ваших любимых дорам с удобной системой отслеживания просмотра</p>
+            
+            <div class="theme-switcher">
+                <input type="checkbox" id="themeToggle" class="theme-checkbox">
+                <label for="themeToggle" class="theme-label">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                    <span class="theme-ball"></span>
+                </label>
+            </div>
         </header>
 
         <div class="search-container">
@@ -1264,6 +1400,24 @@
             }
         };
 
+        // Theme Switcher
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        // Проверяем сохраненную тему
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        if (savedTheme === 'light') {
+            body.classList.add('light-theme');
+            themeToggle.checked = true;
+        }
+
+        // Обработчик переключения
+        themeToggle.addEventListener('change', () => {
+            body.classList.toggle('light-theme');
+            const theme = body.classList.contains('light-theme') ? 'light' : 'dark';
+            localStorage.setItem('theme', theme);
+        });
+
         // Инициализация приложения со ВСЕМИ дорамами
         document.addEventListener('DOMContentLoaded', () => {
             doramaController.init([
@@ -1488,7 +1642,7 @@
                     "id": "happiness",
                     "title": "Счастье / Happiness",
                     "genres": ["фантастика", "драма", "ужасы", "мелодрама"],
-                    "description": "В мире, где новая инфекционная болезнь превращает людей в кровожадных существ, группа жителей многоквартирного дома оказывается запертой внутри. Им предстоит бороться за выживание и сохранение человечности в условиях изоляции и паранойи.",
+                    "description": "В мире, где новая инфекционная болезнь превращает людей в кровожадных существа, группа жителей многоквартирного дома оказывается запертой внутри. Им предстоит бороться за выживание и сохранение человечности в условиях изоляции и паранойи.",
                     "release_date": "5 ноября 2021 г.",
                     "cast": ["Хан Хё Чжу", "Пак Хён Шик", "Чо У Джин"],
                     "status": "12 серий. Проект завершен.",
@@ -1715,7 +1869,7 @@
                 {
                     "id": "island",
                     "title": "Остров / Island",
-                    "genres": ["фэнтези", "боевик"],
+                    "genres": ["фантастика", "боевик"],
                     "description": "В основе сюжета — древнее пророчество, предрекающее возвращение зла на остров Чеджу. Ван, последний представитель клана, который веками защищал мир от демонов, вместе с Ми Хо, девушкой, обладающей особой силой, и священником-экзорцистом Ёханом, сражается против демонических сил.",
                     "release_date": "Часть 1 (30 декабря 2022 г), Часть 2 (24 февраля 2023 г).",
                     "cast": ["Ким Нам Гиль", "Ли Да Хи", "Ча Ын У", "Сон Чжун"],
